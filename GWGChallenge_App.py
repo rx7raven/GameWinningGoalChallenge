@@ -3,6 +3,7 @@ import wx, praw, operator, datetime
 GameWinNames = []
 leaderboard = open('leaderboard.txt', 'a')
 SaveMsgCheckBox = 0
+BuildLeaderboardCheckBox = 0
 guessers = 0
 correct = 0
 
@@ -27,86 +28,106 @@ class Example(wx.Frame):
         global correct
         global guessers
 
+        #builds the overall panel to place everything else onto
         self.panel = wx.Panel(self)
-        vbox = wx.BoxSizer(wx.VERTICAL)
 
+        #sets up menu and gives it 3 items
         menubar = wx.MenuBar()
         filem = wx.Menu()
         editm = wx.Menu()
         helpm = wx.Menu()
 
+        #places File, Edit, Help on menubar and places that menu bar
         menubar.Append(filem, '&File')
         menubar.Append(editm, '&Edit')
         menubar.Append(helpm, '&Help')
         self.SetMenuBar(menubar)
 
+        # Prompts the user for thread id,
+        # username, and password.  Stores
+        # all three into variables.
         ThreadIDBox = wx.TextEntryDialog(None,'What is the thread ID?','Thread ID','')
-
         if ThreadIDBox.ShowModal() == wx.ID_OK:
             ThreadID = ThreadIDBox.GetValue()
-
         UserNameBox = wx.TextEntryDialog(None,'What is your username?','Username','')
-
         if UserNameBox.ShowModal() == wx.ID_OK:
             Username = UserNameBox.GetValue()
-
         PassWordBox = wx.PasswordEntryDialog(None,'What is your password?','Password','')
-
         if PassWordBox.ShowModal() == wx.ID_OK:
             Password = PassWordBox.GetValue()
 
-
-        st1 = wx.StaticText(self.panel, label='http://www.reddit.com/r/hockey/'+ThreadID, style=wx.ALIGN_CENTRE)
-        st2 = wx.StaticText(self.panel, label='Currently logged in as '+Username, style=wx.ALIGN_CENTRE)
-        st3 = wx.StaticText(self.panel, label='Add a goal scorer: ', style=wx.ALIGN_RIGHT)
-        results = wx.TextCtrl(self.panel, pos=(350,5), size=(275,400), style=wx.TE_MULTILINE|wx.TE_READONLY)
-        #st4 = wx.StaticText(self.panel, label='Total Guessers ' + str(guessers), style=wx.ALIGN_CENTRE)
-        #st5 = wx.StaticText(self.panel, label='Total  ' + str(correct), style=wx.ALIGN_CENTRE)
-        msg_correct = wx.TextCtrl(self.panel, value='Enter message to be sent to those who guessed correctly...', pos=(640,5), size=(250,250), style=wx.TE_MULTILINE)
-        msg_wrong =  wx.TextCtrl(self.panel, value='Enter message to be sent to those who guessed incorrectly...', pos=(640,300), size=(250,250), style=wx.TE_MULTILINE)
-        
-
-        vbox.Add(st1, flag=wx.ALL, border=5)
-        vbox.Add(st2, flag=wx.ALL, border=5)
-        vbox.Add(st3, flag=wx.ALL, border=5)
-        self.panel.SetSizer(vbox)
-
-
+        #Builds the window for the application and sets the Title bar
         self.SetSize((900, 600))
         self.SetTitle('Game Winning Goal Challenge - /r/hockey')
         self.Centre()
         self.Show(True)
 
-        self.gwgname = wx.TextCtrl(self, value='Enter lowercase names...', pos=(125, 57), size=(215,-1))
+        #Builds the top left static text entries and combines them with variables collected from user
+        #Also creates and places the gwg text box and the save to list button
+        st1 = wx.StaticText(self.panel, label='http://www.reddit.com/r/hockey/'+ThreadID, style=wx.ALIGN_LEFT, pos=(5,-1))
+        st2 = wx.StaticText(self.panel, label='Currently logged in as '+Username, style=wx.ALIGN_LEFT, pos=(5, 20))
+        st3 = wx.StaticText(self.panel, label='Add a goal scorer: ', style=wx.ALIGN_LEFT, pos=(6, 55))
+        self.gwgname = wx.TextCtrl(self, value='Lowercase names...', pos=(125, 53), size=(140, -1))
+        self.savbtn = wx.Button(self.panel, label='Save Name to list', pos=(68, 80))
 
-        self.savbtn = wx.Button(self.panel, label='Save Name to list', pos=(165, 80))
+        #Builds the text box and clear button which holds the list of gwg names
+        self.listctrl = wx.ListCtrl(self.panel, style=wx.LC_REPORT, pos=(10,110), size=(255,150))
+        self.listctrl.InsertColumn(0, 'Name', width=255)
+        self.clrbtn = wx.Button(self.panel, label='Clear ALL', pos=(89,260))
 
-        self.listctrl = wx.ListCtrl(self.panel, style=wx.LC_REPORT, pos=(10,110), size=(125,150))
-        self.listctrl.InsertColumn(0, 'Name', width=125)
-
-        self.clrbtn = wx.Button(self.panel, label='Clear ALL', pos=(5,260))
+        #Builds the middle logging text box
+        results = wx.TextCtrl(self.panel, pos=(280,5), size=(340,400), style=wx.TE_MULTILINE|wx.TE_READONLY)
+        
+        #Loads logo.png file to memory and places it on panel
         imageFile = 'logo.png'
         logo = wx.Image(imageFile, wx.BITMAP_TYPE_PNG).ConvertToBitmap()
         wx.StaticBitmap(self, -1, logo, pos=(15,290))
-        scrbrdbtwn = wx.Button(self.panel, label='Build Scoreboard', pos=(370,445))
-        closebtn = wx.Button(self.panel, wx.ID_CLOSE, 'Close',pos=(390,500))
         
+        #Builds the correct/wrong text boxes
+        msg_correct = wx.TextCtrl(self.panel, value='Enter message to be sent to those who guessed correctly...', pos=(640,5), size=(250,250), style=wx.TE_MULTILINE)
+        msg_wrong =  wx.TextCtrl(self.panel, value='Enter message to be sent to those who guessed incorrectly...', pos=(640,300), size=(250,250), style=wx.TE_MULTILINE)
+
+        #Creates the following buttons/checkboxes:
+        #   Save Messages
+        #   Write leaderboard
+        #   Send Messages
         self.msgsvbtn = wx.Button(self.panel, label='Save Messages', pos=(631,260))
-        self.sndmsgchk = wx.CheckBox(self.panel, id=1, label='Send Messages?', pos=(750,265))
-        self.sndmsgchk.SetValue(False)
+        self.bldldbchk = wx.CheckBox(self.panel, label='Write leaderboard?', pos=(750,255))
+        self.sndmsgchk = wx.CheckBox(self.panel, label='Send Messages?', pos=(750,275))
         
-        self.checknames = wx.Button(self.panel, label='Check names against Thread', pos=(135,175))
+        #forces checkboxes to false
+        self.sndmsgchk.SetValue(False)
+        self.bldldbchk.SetValue(False)
+        
+        #Buttons for checking the following:
+        #   GWG names against the reddit thread
+        #   Builds the scoreboard in console to copy at the end
+        #   Closing the application window
+        self.checknames = wx.Button(self.panel, label='Check names against Thread', pos=(345,410))
+        scrbrdbtwn = wx.Button(self.panel, label='Build Scoreboard', pos=(385,445))
+        closebtn = wx.Button(self.panel, wx.ID_CLOSE, 'Close',pos=(405,480))
 
-        self.sndmsgchk.Bind(wx.EVT_CHECKBOX, self.SendMessage, self.sndmsgchk)
-
+        #Binding all the buttons to their events for interation.
         self.savbtn.Bind(wx.EVT_BUTTON, self.SaveName)
         self.clrbtn.Bind(wx.EVT_BUTTON, self.ClearNames)
         self.msgsvbtn.Bind(wx.EVT_BUTTON, self.SaveMessages)
+        self.sndmsgchk.Bind(wx.EVT_CHECKBOX, self.SendMessage, self.sndmsgchk)
+        self.bldldbchk.Bind(wx.EVT_CHECKBOX, self.BuildLeaderboard, self.bldldbchk)
         self.checknames.Bind(wx.EVT_BUTTON, self.gwg)
         closebtn.Bind(wx.EVT_BUTTON, self.OnClose)
         scrbrdbtwn.Bind(wx.EVT_BUTTON, self.BuildScoreBoard)
 
-    def SendMessage(self, event):
+    def BuildLeaderboard(self, e):
+        global BuildLeaderboardCheckBox
+
+        if self.bldldbchk.GetValue():
+            BuildLeaderboardCheckBox = 1
+            self.__log('BUILDING LEADERBOARD')
+        else:
+            BuildLeaderboardCheckBox = 0
+            self.__log('NOT BUILDING LEADERBOARD')
+
+    def SendMessage(self, e):
         global SaveMsgCheckBox
 
         if self.sndmsgchk.GetValue():
@@ -167,7 +188,8 @@ class Example(wx.Frame):
                 for y in GameWinNames:
                     if(y in text.lower()):
                         self.__log('Yes ' + str(redditor) + ' ' + str(subtime))
-                        leaderboard.write(leader_add)
+                        if BuildLeaderboardCheckBox == 1:
+                            leaderboard.write(leader_add)
                         #correct = correct + 1
                         if SaveMsgCheckBox == 1:
                             redditor.send_message('GWG Challenge', MSG_CRT)
@@ -177,6 +199,7 @@ class Example(wx.Frame):
                             redditor.send_message('GWG Challenge', MSG_WRG)
            else:
                 self.__log('DELETED USERNAME')
+        leaderboard.close()
 
     def BuildScoreBoard(self, e):
         with open('leaderboard.txt') as f:
@@ -206,6 +229,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-#print guessers
-#print correct
