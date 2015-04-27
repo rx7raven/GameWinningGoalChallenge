@@ -116,6 +116,7 @@ class Example(wx.Frame):
         self.checknames.Bind(wx.EVT_BUTTON, self.gwg)
         closebtn.Bind(wx.EVT_BUTTON, self.OnClose)
         scrbrdbtwn.Bind(wx.EVT_BUTTON, self.BuildScoreBoard)
+    
     #Function that gets called when the Build Leaderboard button is pressed.
     #It sets a variable to be used later and outputs a message to the log.
     def BuildLeaderboard(self, e):
@@ -127,7 +128,9 @@ class Example(wx.Frame):
         else:
             BuildLeaderboardCheckBox = 0
             self.__log('NOT BUILDING LEADERBOARD')
-    #Function that first checks the Save
+    
+    #Function that first checks the Send Message checkbox and sets a variable
+    #to be used later. Also outputs a message to the log.
     def SendMessage(self, e):
         global SendMsgCheckBox
 
@@ -138,12 +141,17 @@ class Example(wx.Frame):
             SendMsgCheckBox = 0
             self.__log('NOT SENDING MESSAGES')
 
+    #Function that gets called when the Save Name to List button is pressed.
+    #It saves the player name entered to a list and displays said list in
+    #report box and clears input box.
     def SaveName(self, e):
         num_items = self.listctrl.GetItemCount()
         self.listctrl.InsertStringItem(num_items, self.gwgname.GetValue())
         GameWinNames.append(self.gwgname.GetValue())
         self.gwgname.Clear()
 
+    #Functuin that gets called when the Clear All button is pressed.
+    #It clears all the unput boxes, report, and log.
     def ClearNames(self, e):
         self.listctrl.DeleteAllItems()
         results.Clear()
@@ -151,6 +159,8 @@ class Example(wx.Frame):
         msg_wrong.Clear()
         GameWinNames[:] = []
 
+    #Function that gets called when the Save Messages button is pressed.
+    #It saves the correct/wrong messages to variables and outputs to log.
     def SaveMessages(self, e):
         global MSG_CRT
         global MSG_WRG
@@ -159,14 +169,20 @@ class Example(wx.Frame):
         MSG_WRG = (msg_wrong.GetValue())
         self.__log('Messages Saved')
 
+    #Function that gets called when the Close button is pressed/
+    #It closes the application window.
     def OnClose(self, e):
         self.Close()
 
+    #Function that is used to push messages to the logger.
     def __log(self, message):
         ''' Private method to append a string to the logger text
             control. '''
         results.AppendText('%s\n'%message)
 
+    #Function that gets called when the Check Names Against Thread button is pressed.
+    #Logs into the reddit API and pulls the thread comments/submitters and checks them
+    #against what is inputted by the user.  Also outputs list to logger
     def gwg(self, e):
         r = praw.Reddit('Game Winning Goal Challenge App 1.0'
                         'by rx7raven/tickle_me_grover'
@@ -201,7 +217,10 @@ class Example(wx.Frame):
            else:
                 self.__log('DELETED USERNAME')
         leaderboard.close()
-
+    
+    #Function that gets called when Build Scoreboard button is pressed.
+    #It opens text file, reads each line and counts how many times a user is listed.
+    #Then outputs this to console in most to least order.
     def BuildScoreBoard(self, e):
         with open('leaderboard.txt') as f:
             content = f.readlines()
