@@ -18,7 +18,7 @@ Inputs
 Outputs  
 ---Application has a logger in the center to give the user some output.  It will check to see whether the send message and build leader boards are checked to ensure the correct settings are made.  
 
-Buttons
+Buttons  
 ---Save name to list  
 ---Clear All  
 ---Save Messages(message only sent if box is checked)  
