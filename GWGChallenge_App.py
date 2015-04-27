@@ -192,6 +192,8 @@ class Example(wx.Frame):
         submission = r.get_submission(submission_id=ThreadID)
         flat_comments = submission.comments
         
+        guessers = 0
+        correct = 0
         counter = 0
         for comment in flat_comments:
            text = comment.body
@@ -199,23 +201,26 @@ class Example(wx.Frame):
            subtime = datetime.datetime.utcfromtimestamp(subtimeutc)
            redditor = comment.author
            counter = counter + 1
-           #guessers = guessers + 1
+           guessers = guessers + 1
            if any(x in text.lower() for x in GameWinNames) and redditor != None:
                 leader_add = redditor.name + "\n"
                 for y in GameWinNames:
                     if(y in text.lower()):
-                        self.__log('Yes ' + str(redditor) + ' ' + str(subtime))
+                        self.__log(str(guessers) + ' Yes ' + str(redditor) + ' ' + str(subtime))
                         if BuildLeaderboardCheckBox == 1:
                             leaderboard.write(leader_add)
-                        #correct = correct + 1
+                        correct = correct + 1
                         if SendMsgCheckBox == 1:
                             redditor.send_message('GWG Challenge', MSG_CRT)
            elif redditor != None:
-                self.__log('No ' + str(redditor))
+                self.__log(str(guessers) + ' No ' + str(redditor))
                 if SendMsgCheckBox == 1:
                             redditor.send_message('GWG Challenge', MSG_WRG)
            else:
                 self.__log('DELETED USERNAME')
+        self.__log('Number of correct answers: ' + str(correct))
+
+        #Closes leaderboard file
         leaderboard.close()
     
     #Function that gets called when Build Scoreboard button is pressed.
