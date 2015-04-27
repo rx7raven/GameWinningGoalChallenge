@@ -2,13 +2,13 @@ import wx, praw, operator, datetime
 
 GameWinNames = []
 leaderboard = open('leaderboard.txt', 'a')
-SaveMsgCheckBox = 0
+SendMsgCheckBox = 0
 BuildLeaderboardCheckBox = 0
 guessers = 0
 correct = 0
 
 class Example(wx.Frame):
-
+    #Initially run function when program is opened
     def __init__(self, *args, **kwargs):
         super(Example, self).__init__(*args, **kwargs)
 
@@ -24,7 +24,7 @@ class Example(wx.Frame):
         global msg_wrong
         global MSG_CRT
         global MSG_WRG
-        global SaveMsgCheckBox
+        global SendMsgCheckBox
         global correct
         global guessers
 
@@ -116,7 +116,8 @@ class Example(wx.Frame):
         self.checknames.Bind(wx.EVT_BUTTON, self.gwg)
         closebtn.Bind(wx.EVT_BUTTON, self.OnClose)
         scrbrdbtwn.Bind(wx.EVT_BUTTON, self.BuildScoreBoard)
-
+    #Function that gets called when the Build Leaderboard button is pressed.
+    #It sets a variable to be used later and outputs a message to the log.
     def BuildLeaderboard(self, e):
         global BuildLeaderboardCheckBox
 
@@ -126,15 +127,15 @@ class Example(wx.Frame):
         else:
             BuildLeaderboardCheckBox = 0
             self.__log('NOT BUILDING LEADERBOARD')
-
+    #Function that first checks the Save
     def SendMessage(self, e):
-        global SaveMsgCheckBox
+        global SendMsgCheckBox
 
         if self.sndmsgchk.GetValue():
-            SaveMsgCheckBox = 1
+            SendMsgCheckBox = 1
             self.__log('SENDING MESSAGES')
         else: 
-            SaveMsgCheckBox = 0
+            SendMsgCheckBox = 0
             self.__log('NOT SENDING MESSAGES')
 
     def SaveName(self, e):
@@ -191,11 +192,11 @@ class Example(wx.Frame):
                         if BuildLeaderboardCheckBox == 1:
                             leaderboard.write(leader_add)
                         #correct = correct + 1
-                        if SaveMsgCheckBox == 1:
+                        if SendMsgCheckBox == 1:
                             redditor.send_message('GWG Challenge', MSG_CRT)
            elif redditor != None:
                 self.__log('No ' + str(redditor))
-                if SaveMsgCheckBox == 1:
+                if SendMsgCheckBox == 1:
                             redditor.send_message('GWG Challenge', MSG_WRG)
            else:
                 self.__log('DELETED USERNAME')
