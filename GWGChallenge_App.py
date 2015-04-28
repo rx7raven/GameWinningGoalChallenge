@@ -169,16 +169,16 @@ class Example(wx.Frame):
         MSG_WRG = (msg_wrong.GetValue())
         self.__log('Messages Saved')
 
-    #Function that gets called when the Close button is pressed/
-    #It closes the application window.
-    def OnClose(self, e):
-        self.Close()
-
     #Function that is used to push messages to the logger.
     def __log(self, message):
         ''' Private method to append a string to the logger text
             control. '''
         results.AppendText('%s\n'%message)
+
+    #Function that gets called when the Close button is pressed/
+    #It closes the application window.
+    def OnClose(self, e):
+        self.Close()
 
     #Function that gets called when the Check Names Against Thread button is pressed.
     #Logs into the reddit API and pulls the thread comments/submitters and checks them
@@ -197,8 +197,8 @@ class Example(wx.Frame):
         counter = 0
         for comment in flat_comments:
            text = comment.body
-           subtimeutc = submission.created_utc
-           subtime = datetime.datetime.utcfromtimestamp(subtimeutc)
+           commenttimeutc = comment.created_utc
+           commenttime = datetime.datetime.utcfromtimestamp(commenttimeutc)
            redditor = comment.author
            counter = counter + 1
            guessers = guessers + 1
@@ -206,7 +206,7 @@ class Example(wx.Frame):
                 leader_add = redditor.name + "\n"
                 for y in GameWinNames:
                     if(y in text.lower()):
-                        self.__log(str(guessers) + ' Yes ' + str(redditor) + ' ' + str(subtime))
+                        self.__log(str(guessers) + ' Yes ' + str(redditor) + ' ' + str(commenttime))
                         if BuildLeaderboardCheckBox == 1:
                             leaderboard.write(leader_add)
                         correct = correct + 1
