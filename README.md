@@ -1,5 +1,5 @@
 # GameWinningGoalChallenge Application
--Kevin Farver (rx7raven)
+-RX7RaVeN
 
 The Game Winnning Goal application was developed in conjuction with /u/tickle_me_grover and was created for the Game Winning Goal Challenge on reddit. During the NHL playoffs a post is made  once a day.  Users then comment with a name(s) of the player who scores the game winning goal.
 
