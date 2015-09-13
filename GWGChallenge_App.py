@@ -67,7 +67,7 @@ class Example(wx.Frame):
         st1 = wx.StaticText(self.panel, label='http://www.reddit.com/r/hockey/'+ThreadID, style=wx.ALIGN_LEFT, pos=(5,-1))
         st2 = wx.StaticText(self.panel, label='Currently logged in as '+Username, style=wx.ALIGN_LEFT, pos=(5, 20))
         st3 = wx.StaticText(self.panel, label='Add a goal scorer: ', style=wx.ALIGN_LEFT, pos=(6, 55))
-        self.gwgname = wx.TextCtrl(self, value='Lowercase names...', pos=(125, 53), size=(140, -1))
+        self.gwgname = wx.TextCtrl(self, value='Enter goal scorer(s)...', pos=(125, 53), size=(140, -1))
         self.savbtn = wx.Button(self.panel, label='Save Name to list', pos=(68, 80))
 
         #Builds the text box and clear button which holds the list of gwg names
@@ -146,7 +146,10 @@ class Example(wx.Frame):
     #report box and clears input box.
     def SaveName(self, e):
         num_items = self.listctrl.GetItemCount()
-        self.listctrl.InsertStringItem(num_items, self.gwgname.GetValue())
+        #Storing the name in lowercase
+        LowerCaseName = (self.gwgname.GetValue())
+        LowerCaseName = LowerCaseName.lower()
+        self.listctrl.InsertStringItem(num_items, LowerCaseName)
         GameWinNames.append(self.gwgname.GetValue())
         self.gwgname.Clear()
 
