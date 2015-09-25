@@ -158,8 +158,8 @@ class Example(wx.Frame):
     def ClearNames(self, e):
         self.listctrl.DeleteAllItems()
         results.Clear()
-        msg_correct.Clear()
-        msg_wrong.Clear()
+        msg_correct.SetValue('Enter message to be sent to those who guessed correctly...')
+        msg_wrong.SetValue('Enter message to be sent to those who guessed incorrectly...')
         GameWinNames[:] = []
 
     #Function that gets called when the Save Messages button is pressed.
